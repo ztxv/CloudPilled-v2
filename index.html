@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>AWS CCP Study</title>
+<script src="./assets/js/theme-init.js"></script>
+<link rel="stylesheet" href="./assets/css/styles.css">
+</head>
+<body>
+
+<div class="hdr">
+  <div class="header-actions">
+    <div class="streak-wrap">
+      <button class="streak-chip dim" id="streak-chip" onclick="toggleStreakPopover(event)" aria-label="Open streak summary">
+        <span aria-hidden="true">🔥</span><span id="streak-count">0</span>
+      </button>
+      <div class="streak-popover" id="streak-popover"></div>
+    </div>
+    <button class="header-icon-btn" id="settings-toggle" onclick="openSettingsPanel()" aria-label="Open settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"></path>
+        <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1A2 2 0 1 1 4.2 17l.1-.1A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.3 7A2 2 0 1 1 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1A2 2 0 1 1 19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1a2 2 0 1 1 0 4H21a1.7 1.7 0 0 0-1.6 1z"></path>
+      </svg>
+    </button>
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"></circle>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+      </svg>
+    </button>
+  </div>
+  <div class="title">AWS Service Library</div>
+  <div class="sub">Cloud Practitioner study reference</div>
+</div>
+
+<div class="toolbar glass">
+  <div class="mode-switch" id="mode-switch" role="tablist">
+    <button class="mode-btn active" data-mode="browse" onclick="setMode('browse')" role="tab" aria-selected="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      Browse
+    </button>
+    <button class="mode-btn" data-mode="flashcards" onclick="setMode('flashcards')" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
+      Flashcards
+    </button>
+    <button class="mode-btn" data-mode="compare" onclick="setMode('compare')" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v18M16 3v18M3 8h5M3 16h5M16 8h5M16 16h5"/></svg>
+      Compare
+    </button>
+    <button class="mode-btn" data-mode="quiz" onclick="setMode('quiz')" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 1 1 5.4 2c-.6.7-2.5 1.5-2.5 3"/><path d="M12 17.5h.01"/></svg>
+      Quiz
+    </button>
+    <button class="mode-btn" data-mode="ai" onclick="setMode('ai')" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0-6 6v3a6 6 0 0 0 12 0V9a6 6 0 0 0-6-6z"/><path d="M8 15v3a4 4 0 0 0 8 0v-3"/><path d="M9 9h.01M15 9h.01"/><path d="M10 12h4"/></svg>
+      Study Buddy
+    </button>
+  </div>
+  <div class="search-wrap" id="search-wrap">
+    <svg class="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="7" cy="7" r="5"></circle>
+      <path d="m13 13-2.5-2.5"></path>
+    </svg>
+    <input id="search" type="text" placeholder="Search services, tags, descriptions" oninput="filterCards()" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off">
+    <button class="search-clear" id="search-clear" onclick="clearSearch()" aria-label="Clear search">×</button>
+  </div>
+  <div class="filters" id="filters"></div>
+</div>
+
+<div class="count" id="count"></div>
+<div class="view" id="view"></div>
+
+<div class="overlay" id="overlay" onclick="closePanel()"></div>
+<div class="panel" id="panel" role="dialog" aria-modal="true">
+  <button class="panel-close" onclick="closePanel()" aria-label="Close">×</button>
+  <div id="panel-content"></div>
+</div>
+
+<div class="overlay" id="settings-overlay" onclick="closeSettingsPanel()"></div>
+<div class="panel settings-panel" id="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+  <button class="panel-close" onclick="closeSettingsPanel()" aria-label="Close">×</button>
+  <div id="settings-content"></div>
+</div>
+
+<script src="./assets/js/app.js"></script>
+</body>
+</html>

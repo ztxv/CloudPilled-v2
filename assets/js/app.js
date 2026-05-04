@@ -1,7 +1,7 @@
-// The user asked to hardcode this for now. This is exposed in page source; replace the placeholder with your Nvidia API key before using Study Buddy.
-const NVIDIA_API_KEY='PASTE_KEY_HERE';
-const NVIDIA_MODEL='moonshotai/kimi-k2-instruct';
 const AI_SYSTEM_PROMPT='You are a professional AWS Cloud Practitioner (CCP) study guide assistant. Your role is to help the user prepare for the AWS Certified Cloud Practitioner exam (CLF-C02). You are knowledgeable about AWS services, the Shared Responsibility Model, the Well-Architected Framework, AWS pricing models, support plans, and core cloud concepts. Keep answers concise, accurate, and exam-relevant. When a question is ambiguous, ask for clarification. When the user asks about non-AWS topics, gently redirect. When asked, generate practice MC questions in the format: question, four options A-D, and a one-sentence explanation. Never speculate — if you are unsure of a detail, say so.';
+const AI_USAGE_KEY='aws-ccp-ai-usage';
+const AI_QUESTION_LIMIT=5;
+const AI_COOLDOWN_MS=60*60*1000;
 const CATS={
   compute:    {label:'Compute',     color:'#ff9f0a'},
   storage:    {label:'Storage',     color:'#ffd60a'},
@@ -1148,6 +1148,7 @@ const state={
   ai:{
     messages:[],
     streaming:false,
+    usage:null,
   },
 };
 
@@ -1598,14 +1599,22 @@ function renderCompare(root){
 /* ── AI Study Buddy ── */
 function renderAI(root){
   root.className='view ai-wrap';
-  setCount('Study Buddy · chat session');
+  const usage=getAiUsage();
+  const remaining=Math.max(0, AI_QUESTION_LIMIT-usage.count);
+  const limited=remaining===0;
+  setCount(limited ? 'Study Buddy · cooldown resets in '+getAiCooldownText(usage) : 'Study Buddy · '+remaining+' questions left this hour');
+  if(limited){
+    setTimeout(()=>{
+      if(state.mode==='ai')render();
+    }, Math.min(AI_COOLDOWN_MS, 60000));
+  }
 
   const head=document.createElement('div');
   head.className='ai-head surface';
   head.innerHTML=`
     <div>
       <div class="ai-title">Study Buddy</div>
-      <div class="ai-disclaimer">AI can be wrong. Verify against AWS docs.</div>
+      <div class="ai-disclaimer">${limited ? 'Question limit reached. Cooldown resets in '+getAiCooldownText(usage)+'.' : 'AI can be wrong. Verify against AWS docs.'}</div>
     </div>
     <div class="ai-head-actions">
       <button class="quiz-btn" id="ai-new-chat">New chat</button>
@@ -1645,8 +1654,8 @@ function renderAI(root){
   const composer=document.createElement('div');
   composer.className='ai-composer glass';
   composer.innerHTML=`
-    <textarea class="ai-input" id="ai-input" placeholder="Ask about AWS CCP topics" rows="1" ${state.ai.streaming?'disabled':''}></textarea>
-    <button class="header-icon-btn ai-send" id="ai-send" aria-label="Send message" ${state.ai.streaming?'disabled':''}>
+    <textarea class="ai-input" id="ai-input" placeholder="${limited ? 'Cooldown resets in '+getAiCooldownText(usage) : 'Ask about AWS CCP topics'}" rows="1" ${(state.ai.streaming||limited)?'disabled':''}></textarea>
+    <button class="header-icon-btn ai-send" id="ai-send" aria-label="Send message" ${(state.ai.streaming||limited)?'disabled':''}>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4 20-7z"/></svg>
     </button>
   `;
@@ -1678,6 +1687,42 @@ function renderMiniMarkdown(text){
   return out.split(/\n{2,}/).map(p=>'<p>'+p.replace(/\n/g,'<br>')+'</p>').join('');
 }
 
+function getAiUsage(){
+  const now=Date.now();
+  let usage=null;
+  try{
+    usage=JSON.parse(localStorage.getItem(AI_USAGE_KEY) || 'null');
+  }catch(e){}
+  if(!usage || typeof usage.windowStart!=='number' || typeof usage.count!=='number' || now-usage.windowStart>=AI_COOLDOWN_MS){
+    usage={windowStart:now,count:0};
+    saveAiUsage(usage);
+  }
+  return usage;
+}
+
+function saveAiUsage(usage){
+  state.ai.usage=usage;
+  try{localStorage.setItem(AI_USAGE_KEY, JSON.stringify(usage));}catch(e){}
+}
+
+function getAiCooldownText(usage){
+  const ms=Math.max(0, AI_COOLDOWN_MS-(Date.now()-usage.windowStart));
+  const mins=Math.ceil(ms/60000);
+  if(mins>=60)return '1 hr';
+  return mins+' min';
+}
+
+function canAskAiQuestion(){
+  return getAiUsage().count<AI_QUESTION_LIMIT;
+}
+
+function recordAiQuestion(){
+  const usage=getAiUsage();
+  usage.count=Math.min(AI_QUESTION_LIMIT, usage.count+1);
+  saveAiUsage(usage);
+  return usage;
+}
+
 function autoSizeAiInput(){
   const input=document.getElementById('ai-input');
   if(!input)return;
@@ -1693,9 +1738,29 @@ function newAiChat(){
 
 function sendAiMessage(text){
   if(state.ai.streaming)return;
+  if(!canAskAiQuestion()){
+    const usage=getAiUsage();
+    state.ai.messages.push({
+      role:'assistant',
+      content:'You have used all 5 Study Buddy questions for this hour. Try again in '+getAiCooldownText(usage)+'.',
+      error:true,
+    });
+    render();
+    return;
+  }
   const input=document.getElementById('ai-input');
   const raw=(typeof text==='string'?text:(input?input.value:'')).trim();
   if(!raw)return;
+  if(location.protocol==='file:'){
+    state.ai.messages.push({
+      role:'assistant',
+      content:'Study Buddy must run through the local server. Start it with npm run dev, then open http://127.0.0.1:5174.',
+      error:true,
+    });
+    render();
+    return;
+  }
+  recordAiQuestion();
   state.ai.messages.push({role:'user',content:raw});
   render();
   requestAssistantResponse();
@@ -1711,10 +1776,10 @@ function retryAiMessage(index){
 }
 
 async function requestAssistantResponse(){
-  if(NVIDIA_API_KEY==='PASTE_KEY_HERE'){
+  if(location.protocol==='file:'){
     state.ai.messages.push({
       role:'assistant',
-      content:'Add your Nvidia API key in the source by replacing NVIDIA_API_KEY before using Study Buddy.',
+      content:'Study Buddy must run through the local server. Start it with npm run dev, then open http://127.0.0.1:5174.',
       error:true,
     });
     render();
@@ -1733,14 +1798,12 @@ async function requestAssistantResponse(){
         .filter(m=>!m.error && !m.loading && m.content)
         .map(m=>({role:m.role,content:m.content})),
     ];
-    const res=await fetch('https://integrate.api.nvidia.com/v1/chat/completions',{
+    const res=await fetch('/api/chat/completions',{
       method:'POST',
       headers:{
-        'Authorization':'Bearer '+NVIDIA_API_KEY,
         'Content-Type':'application/json',
       },
       body:JSON.stringify({
-        model:NVIDIA_MODEL,
         messages:outbound,
         temperature:0.6,
         top_p:0.9,

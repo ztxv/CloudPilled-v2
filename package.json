@@ -4,6 +4,6 @@
   "private": true,
   "description": "Static AWS Cloud Practitioner study reference app.",
   "scripts": {
-    "dev": "python3 -m http.server 5174 --bind 127.0.0.1"
+    "dev": "node server.js"
   }
 }

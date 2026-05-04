@@ -24,6 +24,16 @@ A static AWS Cloud Practitioner study reference app.
 
 ## Run Locally
 
+Create a local `.env` file first:
+
+```bash
+NVIDIA_API_KEY=PASTE_KEY_HERE
+NVIDIA_MODEL=moonshotai/kimi-k2-instruct
+PORT=5174
+```
+
+Replace `PASTE_KEY_HERE` with your Nvidia API key.
+
 ```bash
 npm run dev
 ```
@@ -34,4 +44,4 @@ Then open `http://127.0.0.1:5174`.
 
 This project is ready for Git version control. The `.gitignore` keeps local files, logs, build output, dependencies, and environment files out of commits.
 
-Do not commit real API keys. The current Study Buddy key value is still the existing placeholder in `assets/js/app.js`.
+Do not commit real API keys. Keep the Nvidia key in `.env`; `.gitignore` prevents that file from being committed.

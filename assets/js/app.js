@@ -1610,10 +1610,13 @@ function renderAI(root){
   }
 
   const head=document.createElement('div');
-  head.className='ai-head surface';
+  head.className='ai-head';
   head.innerHTML=`
-    <div>
+    <div class="ai-brand">
+      <svg class="ai-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8M8 13h5"/></svg>
       <div class="ai-title">Study Buddy</div>
+    </div>
+    <div class="ai-top-note">
       <div class="ai-disclaimer">${limited ? 'Question limit reached. Cooldown resets in '+getAiCooldownText(usage)+'.' : 'AI can be wrong. Verify against AWS docs.'}</div>
     </div>
     <div class="ai-head-actions">
@@ -1623,12 +1626,21 @@ function renderAI(root){
   root.appendChild(head);
 
   const chat=document.createElement('div');
-  chat.className='ai-chat surface';
+  chat.className='ai-chat';
   chat.id='ai-chat';
   if(state.ai.messages.length===0){
     const empty=document.createElement('div');
     empty.className='ai-empty';
-    empty.textContent='Ask for a quick explanation, a comparison, or practice questions for the AWS CCP exam.';
+    empty.innerHTML=`
+      <div class="ai-empty-title">Ask me anything AWS CCP</div>
+      <div class="ai-empty-sub">Concepts, services, comparisons, or "quiz me on X"; I will keep it exam-relevant.</div>
+      <div class="ai-suggestions">
+        <button type="button" data-ai-prompt="Explain the difference between EC2, Lambda, and Fargate" ${limited?'disabled':''}>Compare EC2, Lambda, and Fargate</button>
+        <button type="button" data-ai-prompt="What is the AWS Shared Responsibility Model for the CCP exam?" ${limited?'disabled':''}>Explain Shared Responsibility</button>
+        <button type="button" data-ai-prompt="Quiz me on AWS pricing, billing, and support plans" ${limited?'disabled':''}>Quiz me on pricing and support</button>
+        <button type="button" data-ai-prompt="Summarize S3 storage classes for the AWS CCP exam" ${limited?'disabled':''}>Summarize S3 storage classes</button>
+      </div>
+    `;
     chat.appendChild(empty);
   }else{
     state.ai.messages.forEach((m,i)=>{
@@ -1662,6 +1674,9 @@ function renderAI(root){
   root.appendChild(composer);
 
   document.getElementById('ai-new-chat').addEventListener('click',newAiChat);
+  root.querySelectorAll('[data-ai-prompt]').forEach(btn=>{
+    btn.addEventListener('click',()=>sendAiMessage(btn.dataset.aiPrompt));
+  });
   const input=document.getElementById('ai-input');
   const send=document.getElementById('ai-send');
   input.addEventListener('input',autoSizeAiInput);
@@ -1854,7 +1869,7 @@ async function requestAssistantResponse(){
     assistant.retry=lastUser ? lastUser.content : '';
     assistant.content=(err && err.name==='AbortError')
       ? 'The request was cancelled.'
-      : 'Study Buddy could not connect. '+(err && err.message ? err.message : 'Check the API key, network, or browser CORS restrictions.');
+      : 'Study Buddy could not connect. '+(err && err.message ? err.message : 'Check that npm run dev is running, .env has NVIDIA_API_KEY, and your network is up.');
   }finally{
     state.ai.streaming=false;
     render();

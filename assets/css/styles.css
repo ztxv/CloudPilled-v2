@@ -1472,24 +1472,52 @@ html[data-theme="light"] .flash-btn.known{background:#c79a00;color:#fff;}
 
 /* ── AI Study Buddy ── */
 .ai-wrap{
-  min-height:62vh;
+  min-height:min(720px, calc(100vh - 250px));
   display:grid;
-  grid-template-rows:auto minmax(320px,1fr) auto;
-  gap:12px;
+  grid-template-rows:auto minmax(430px,1fr) auto;
+  gap:16px;
+  max-width:960px;
+  margin:0 auto;
 }
 .ai-head{
+  position:relative;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:12px;
-  padding:16px;
+  gap:16px;
+  padding:8px 6px 0;
+  min-height:58px;
+  background:transparent;
+  border:none;
+  box-shadow:none;
+}
+.ai-brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+.ai-title-icon{
+  width:18px;
+  height:18px;
+  color:#bf5af2;
+  flex:0 0 auto;
 }
 .ai-title{
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
-  font-size:22px;
+  font-size:20px;
   font-weight:700;
   letter-spacing:-0.03em;
   color:var(--text-1);
+}
+.ai-top-note{
+  position:absolute;
+  left:50%;
+  top:38px;
+  transform:translateX(-50%);
+  width:min(420px,48vw);
+  text-align:center;
+  pointer-events:none;
 }
 .ai-disclaimer{
   font-size:12px;
@@ -1504,22 +1532,75 @@ html[data-theme="light"] .flash-btn.known{background:#c79a00;color:#fff;}
   flex-wrap:wrap;
   justify-content:flex-end;
 }
+.ai-head-actions .quiz-btn{
+  flex:0 0 auto;
+  height:34px;
+  padding:0 14px;
+  border-radius:999px;
+  font-size:13px;
+  background:rgba(255,255,255,0.06);
+}
 .ai-chat{
-  padding:16px;
+  padding:24px 0 10px;
   overflow-y:auto;
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:12px;
   -webkit-overflow-scrolling:touch;
+  background:transparent;
+  border:none;
+  box-shadow:none;
 }
 .ai-empty{
   margin:auto;
-  max-width:420px;
+  max-width:620px;
   text-align:center;
-  color:var(--text-3);
+  color:var(--text-2);
   font-size:14px;
-  line-height:1.5;
+  line-height:1.45;
   letter-spacing:-0.005em;
+  padding:20px 14px 52px;
+}
+.ai-empty-title{
+  color:var(--text-1);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
+  font-size:20px;
+  font-weight:700;
+  letter-spacing:-0.03em;
+  margin-bottom:10px;
+}
+.ai-empty-sub{
+  color:var(--text-3);
+  margin-bottom:18px;
+}
+.ai-suggestions{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+}
+.ai-suggestions button{
+  font:inherit;
+  font-size:13px;
+  line-height:1.3;
+  color:var(--text-2);
+  background:rgba(255,255,255,0.06);
+  border:1px solid var(--border-2);
+  border-radius:999px;
+  min-height:34px;
+  padding:8px 14px;
+  cursor:pointer;
+  transition:background .18s ease, color .18s ease, border-color .18s ease, transform .12s ease;
+}
+.ai-suggestions button:hover{
+  color:var(--text-1);
+  background:var(--surface-2);
+  border-color:var(--border-3);
+}
+.ai-suggestions button:active{transform:scale(0.98);}
+.ai-suggestions button:disabled{
+  cursor:default;
+  opacity:0.5;
 }
 .ai-msg{
   max-width:min(76%,680px);
@@ -1589,32 +1670,43 @@ html[data-theme="light"] .flash-btn.known{background:#c79a00;color:#fff;}
 .ai-composer{
   position:sticky;
   bottom:0;
-  padding:12px;
+  padding:0 0 2px;
   display:grid;
-  grid-template-columns:1fr auto;
-  gap:10px;
-  align-items:end;
+  grid-template-columns:1fr 48px;
+  gap:12px;
+  align-items:center;
+  background:rgba(255,255,255,0.06);
+  border:1px solid var(--border-2);
+  border-radius:18px;
+  box-shadow:var(--shadow-soft);
 }
 .ai-input{
-  min-height:44px;
+  min-height:58px;
   max-height:140px;
   resize:none;
-  border-radius:14px;
-  border:1px solid var(--border-2);
-  background:var(--surface-2);
+  border-radius:18px;
+  border:none;
+  background:transparent;
   color:var(--text-1);
   font:inherit;
-  font-size:14px;
+  font-size:15px;
   line-height:1.45;
-  padding:11px 13px;
+  padding:18px 0 14px 16px;
   outline:none;
 }
-.ai-input:focus{border-color:var(--border-3);}
+.ai-input::placeholder{color:var(--text-3);}
+.ai-input:focus{border-color:transparent;}
 .ai-send{
-  width:44px;
-  height:44px;
-  flex:0 0 44px;
+  width:36px;
+  height:36px;
+  flex:0 0 36px;
+  margin-right:10px;
+  background:rgba(255,255,255,0.42);
+  color:#000;
+  border-color:transparent;
 }
+.ai-send:hover{background:rgba(255,255,255,0.58);}
+.ai-send:disabled{opacity:0.45;cursor:default;}
 .ai-send svg{width:17px;height:17px;}
 .ai-retry{
   margin-top:10px;
@@ -1888,10 +1980,14 @@ html[data-theme="light"] .overlay{background:rgba(0,0,0,0.28);}
   .quiz-results-actions{flex-direction:column;}
   .quiz-toggle-row{flex-direction:column;}
   .quiz-cat-row{grid-template-columns:1fr;gap:6px;}
-  .ai-head{align-items:flex-start;flex-direction:column;}
+  .ai-wrap{min-height:calc(100vh - 250px);grid-template-rows:auto minmax(360px,1fr) auto;}
+  .ai-head{align-items:flex-start;flex-direction:column;gap:10px;padding-top:4px;}
+  .ai-top-note{position:static;transform:none;width:auto;text-align:left;}
   .ai-head-actions{justify-content:flex-start;}
   .ai-msg{max-width:92%;}
-  .ai-composer{grid-template-columns:1fr 44px;}
+  .ai-composer{grid-template-columns:1fr 48px;}
+  .ai-empty{padding-bottom:28px;}
+  .ai-suggestions button{width:min(100%,340px);}
   .settings-grid,
   .settings-reset-grid{grid-template-columns:1fr;}
 }

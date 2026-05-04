@@ -7,10 +7,7 @@ const ROOT=__dirname;
 const PORT=Number(process.env.PORT || 5174);
 const HOST=process.env.HOST || '127.0.0.1';
 const NVIDIA_URL='https://integrate.api.nvidia.com/v1/chat/completions';
-const NVIDIA_MODEL=process.env.NVIDIA_MODEL || 'moonshotai/kimi-k2-instruct';
-const AI_LIMIT=5;
-const AI_WINDOW_MS=60*60*1000;
-const usageByIp=new Map();
+const NVIDIA_MODEL='deepseek-ai/deepseek-v4-flash';
 
 loadDotEnv(path.join(ROOT,'.env'));
 
@@ -49,16 +46,6 @@ function json(res,status,body){
   res.end(JSON.stringify(body));
 }
 
-function getUsage(ip){
-  const now=Date.now();
-  let usage=usageByIp.get(ip);
-  if(!usage || now-usage.windowStart>=AI_WINDOW_MS){
-    usage={windowStart:now,count:0};
-    usageByIp.set(ip,usage);
-  }
-  return usage;
-}
-
 function readBody(req){
   return new Promise((resolve,reject)=>{
     let body='';
@@ -86,15 +73,6 @@ async function handleChat(req,res){
     return;
   }
 
-  const ip=req.socket.remoteAddress || 'local';
-  const usage=getUsage(ip);
-  if(usage.count>=AI_LIMIT){
-    const resetMs=Math.max(0, AI_WINDOW_MS-(Date.now()-usage.windowStart));
-    json(res,429,{error:'Study Buddy question limit reached.',resetMs});
-    return;
-  }
-  usage.count+=1;
-
   let payload;
   try{
     payload=JSON.parse(await readBody(req));
@@ -102,7 +80,13 @@ async function handleChat(req,res){
     json(res,400,{error:'Invalid JSON request body.'});
     return;
   }
+  if(payload.model && payload.model!==NVIDIA_MODEL){
+    json(res,400,{error:'Model not allowed.'});
+    return;
+  }
 
+  const controller=new AbortController();
+  const timeoutId=setTimeout(()=>controller.abort(),90000);
   try{
     const upstream=await fetch(NVIDIA_URL,{
       method:'POST',
@@ -118,7 +102,9 @@ async function handleChat(req,res){
         max_tokens:payload.max_tokens ?? 2048,
         stream:payload.stream !== false,
       }),
+      signal:controller.signal,
     });
+    res.on('close',()=>controller.abort());
 
     res.writeHead(upstream.status,{
       'Content-Type':upstream.headers.get('content-type') || 'text/event-stream; charset=utf-8',
@@ -126,11 +112,16 @@ async function handleChat(req,res){
     });
 
     if(upstream.body){
-      Readable.fromWeb(upstream.body).pipe(res);
+      Readable.fromWeb(upstream.body)
+        .on('end',()=>clearTimeout(timeoutId))
+        .on('error',()=>clearTimeout(timeoutId))
+        .pipe(res);
     }else{
+      clearTimeout(timeoutId);
       res.end();
     }
   }catch(e){
+    clearTimeout(timeoutId);
     json(res,502,{error:'Nvidia API request failed.',detail:e.message || String(e)});
   }
 }

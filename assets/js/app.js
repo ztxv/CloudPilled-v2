@@ -1,7 +1,5 @@
 const AI_SYSTEM_PROMPT='You are a professional AWS Cloud Practitioner (CCP) study guide assistant. Your role is to help the user prepare for the AWS Certified Cloud Practitioner exam (CLF-C02). You are knowledgeable about AWS services, the Shared Responsibility Model, the Well-Architected Framework, AWS pricing models, support plans, and core cloud concepts. Keep answers concise, accurate, and exam-relevant. When a question is ambiguous, ask for clarification. When the user asks about non-AWS topics, gently redirect. When asked, generate practice MC questions in the format: question, four options A-D, and a one-sentence explanation. Never speculate — if you are unsure of a detail, say so.';
-const AI_USAGE_KEY='aws-ccp-ai-usage';
-const AI_QUESTION_LIMIT=5;
-const AI_COOLDOWN_MS=60*60*1000;
+const AI_MODEL='deepseek-ai/deepseek-v4-flash';
 const CATS={
   compute:    {label:'Compute',     color:'#ff9f0a'},
   storage:    {label:'Storage',     color:'#ffd60a'},
@@ -1599,15 +1597,7 @@ function renderCompare(root){
 /* ── AI Study Buddy ── */
 function renderAI(root){
   root.className='view ai-wrap';
-  const usage=getAiUsage();
-  const remaining=Math.max(0, AI_QUESTION_LIMIT-usage.count);
-  const limited=remaining===0;
-  setCount(limited ? 'Study Buddy · cooldown resets in '+getAiCooldownText(usage) : 'Study Buddy · '+remaining+' questions left this hour');
-  if(limited){
-    setTimeout(()=>{
-      if(state.mode==='ai')render();
-    }, Math.min(AI_COOLDOWN_MS, 60000));
-  }
+  setCount('Study Buddy · chat session');
 
   const head=document.createElement('div');
   head.className='ai-head';
@@ -1617,7 +1607,7 @@ function renderAI(root){
       <div class="ai-title">Study Buddy</div>
     </div>
     <div class="ai-top-note">
-      <div class="ai-disclaimer">${limited ? 'Question limit reached. Cooldown resets in '+getAiCooldownText(usage)+'.' : 'AI can be wrong. Verify against AWS docs.'}</div>
+      <div class="ai-disclaimer">AI can be wrong. Verify against AWS docs.</div>
     </div>
     <div class="ai-head-actions">
       <button class="quiz-btn" id="ai-new-chat">New chat</button>
@@ -1635,10 +1625,10 @@ function renderAI(root){
       <div class="ai-empty-title">Ask me anything AWS CCP</div>
       <div class="ai-empty-sub">Concepts, services, comparisons, or "quiz me on X"; I will keep it exam-relevant.</div>
       <div class="ai-suggestions">
-        <button type="button" data-ai-prompt="Explain the difference between EC2, Lambda, and Fargate" ${limited?'disabled':''}>Compare EC2, Lambda, and Fargate</button>
-        <button type="button" data-ai-prompt="What is the AWS Shared Responsibility Model for the CCP exam?" ${limited?'disabled':''}>Explain Shared Responsibility</button>
-        <button type="button" data-ai-prompt="Quiz me on AWS pricing, billing, and support plans" ${limited?'disabled':''}>Quiz me on pricing and support</button>
-        <button type="button" data-ai-prompt="Summarize S3 storage classes for the AWS CCP exam" ${limited?'disabled':''}>Summarize S3 storage classes</button>
+        <button type="button" data-ai-prompt="Explain the difference between EC2, Lambda, and Fargate">Compare EC2, Lambda, and Fargate</button>
+        <button type="button" data-ai-prompt="What is the AWS Shared Responsibility Model for the CCP exam?">Explain Shared Responsibility</button>
+        <button type="button" data-ai-prompt="Quiz me on AWS pricing, billing, and support plans">Quiz me on pricing and support</button>
+        <button type="button" data-ai-prompt="Summarize S3 storage classes for the AWS CCP exam">Summarize S3 storage classes</button>
       </div>
     `;
     chat.appendChild(empty);
@@ -1666,8 +1656,8 @@ function renderAI(root){
   const composer=document.createElement('div');
   composer.className='ai-composer glass';
   composer.innerHTML=`
-    <textarea class="ai-input" id="ai-input" placeholder="${limited ? 'Cooldown resets in '+getAiCooldownText(usage) : 'Ask about AWS CCP topics'}" rows="1" ${(state.ai.streaming||limited)?'disabled':''}></textarea>
-    <button class="header-icon-btn ai-send" id="ai-send" aria-label="Send message" ${(state.ai.streaming||limited)?'disabled':''}>
+    <textarea class="ai-input" id="ai-input" placeholder="Ask about AWS CCP topics" rows="1" ${state.ai.streaming?'disabled':''}></textarea>
+    <button class="header-icon-btn ai-send" id="ai-send" aria-label="Send message" ${state.ai.streaming?'disabled':''}>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4 20-7z"/></svg>
     </button>
   `;
@@ -1702,42 +1692,6 @@ function renderMiniMarkdown(text){
   return out.split(/\n{2,}/).map(p=>'<p>'+p.replace(/\n/g,'<br>')+'</p>').join('');
 }
 
-function getAiUsage(){
-  const now=Date.now();
-  let usage=null;
-  try{
-    usage=JSON.parse(localStorage.getItem(AI_USAGE_KEY) || 'null');
-  }catch(e){}
-  if(!usage || typeof usage.windowStart!=='number' || typeof usage.count!=='number' || now-usage.windowStart>=AI_COOLDOWN_MS){
-    usage={windowStart:now,count:0};
-    saveAiUsage(usage);
-  }
-  return usage;
-}
-
-function saveAiUsage(usage){
-  state.ai.usage=usage;
-  try{localStorage.setItem(AI_USAGE_KEY, JSON.stringify(usage));}catch(e){}
-}
-
-function getAiCooldownText(usage){
-  const ms=Math.max(0, AI_COOLDOWN_MS-(Date.now()-usage.windowStart));
-  const mins=Math.ceil(ms/60000);
-  if(mins>=60)return '1 hr';
-  return mins+' min';
-}
-
-function canAskAiQuestion(){
-  return getAiUsage().count<AI_QUESTION_LIMIT;
-}
-
-function recordAiQuestion(){
-  const usage=getAiUsage();
-  usage.count=Math.min(AI_QUESTION_LIMIT, usage.count+1);
-  saveAiUsage(usage);
-  return usage;
-}
-
 function autoSizeAiInput(){
   const input=document.getElementById('ai-input');
   if(!input)return;
@@ -1753,16 +1707,6 @@ function newAiChat(){
 
 function sendAiMessage(text){
   if(state.ai.streaming)return;
-  if(!canAskAiQuestion()){
-    const usage=getAiUsage();
-    state.ai.messages.push({
-      role:'assistant',
-      content:'You have used all 5 Study Buddy questions for this hour. Try again in '+getAiCooldownText(usage)+'.',
-      error:true,
-    });
-    render();
-    return;
-  }
   const input=document.getElementById('ai-input');
   const raw=(typeof text==='string'?text:(input?input.value:'')).trim();
   if(!raw)return;
@@ -1775,7 +1719,6 @@ function sendAiMessage(text){
     render();
     return;
   }
-  recordAiQuestion();
   state.ai.messages.push({role:'user',content:raw});
   render();
   requestAssistantResponse();
@@ -1805,6 +1748,8 @@ async function requestAssistantResponse(){
   state.ai.messages.push(assistant);
   state.ai.streaming=true;
   render();
+  const controller=new AbortController();
+  const timeoutId=setTimeout(()=>controller.abort(),90000);
 
   try{
     const outbound=[
@@ -1819,18 +1764,29 @@ async function requestAssistantResponse(){
         'Content-Type':'application/json',
       },
       body:JSON.stringify({
+        model:AI_MODEL,
         messages:outbound,
         temperature:0.6,
         top_p:0.9,
         max_tokens:2048,
         stream:true,
       }),
+      signal:controller.signal,
     });
     if(!res.ok){
       const body=await res.text().catch(()=>'');
       throw new Error('Nvidia API error '+res.status+(body?': '+body.slice(0,180):''));
     }
     if(!res.body)throw new Error('Streaming is not available in this browser.');
+
+    const contentType=res.headers.get('content-type') || '';
+    if(contentType.includes('application/json')){
+      const data=await res.json();
+      const content=data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+      assistant.loading=false;
+      assistant.content=content || 'No response was returned.';
+      return;
+    }
 
     const reader=res.body.getReader();
     const decoder=new TextDecoder();
@@ -1871,6 +1827,7 @@ async function requestAssistantResponse(){
       ? 'The request was cancelled.'
       : 'Study Buddy could not connect. '+(err && err.message ? err.message : 'Check that npm run dev is running, .env has NVIDIA_API_KEY, and your network is up.');
   }finally{
+    clearTimeout(timeoutId);
     state.ai.streaming=false;
     render();
   }

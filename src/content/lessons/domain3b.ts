@@ -1,0 +1,198 @@
+import { S } from '../builders';
+import type { Lesson } from '../types';
+
+export const DOMAIN3B_LESSONS: Lesson[] = [
+  {
+    id: 'ai-analytics',
+    domain: 3,
+    tasks: ['3.7'],
+    title: 'AI/ML and analytics services',
+    summary: 'Which service understands text, speech, images, or documents — and which one queries, streams, or visualizes your data.',
+    minutes: 9,
+    objectives: [
+      'Match Amazon SageMaker, Lex, Kendra, Rekognition, Polly, Transcribe, Translate, Comprehend, and Textract to the task they perform.',
+      'Match Amazon Athena, Kinesis, AWS Glue, Amazon QuickSight, Amazon EMR, and Amazon OpenSearch Service to analytics needs.',
+    ],
+    blocks: [
+      {
+        t: 'p',
+        x: 'AWS packages machine learning (ML) in two ways: **managed AI services** that do one job through an API (no ML expertise needed), and **Amazon SageMaker**, a platform to build, train, and deploy your own models. For the exam, learn the single job each service does.',
+      },
+      {
+        t: 'compare',
+        title: 'AI/ML services by job',
+        cols: ['Service', 'Job', 'Clue'],
+        rows: [
+          ['Amazon SageMaker', 'Build, train, and deploy your own ML models.', '"build and train custom models"'],
+          ['Amazon Lex', 'Build conversational chatbots with voice and text.', '"chatbot", "conversational interface"'],
+          ['Amazon Kendra', 'Intelligent enterprise search across documents using natural language.', '"search company documents"'],
+          ['Amazon Rekognition', 'Analyze images and video: detect objects, faces, text, and unsafe content.', '"identify objects in images"'],
+          ['Amazon Polly', 'Turn text into lifelike speech.', '"text-to-speech"'],
+          ['Amazon Transcribe', 'Turn speech into text.', '"speech-to-text", "transcribe calls"'],
+          ['Amazon Translate', 'Translate text between languages.', '"translate"'],
+          ['Amazon Comprehend', 'Natural language processing: sentiment, entities, key phrases.', '"sentiment of reviews"'],
+          ['Amazon Textract', 'Extract printed text, handwriting, forms, and tables from scanned documents.', '"extract data from scanned forms"'],
+        ],
+        caption: 'Polly speaks, Transcribe listens, Translate converts languages, Comprehend understands, Textract reads documents.',
+      },
+      {
+        t: 'callout',
+        kind: 'note',
+        title: 'Beyond the exam guide',
+        x: 'Amazon Bedrock gives API access to foundation models for generative AI. It is not on the CLF-C02 guide’s in-scope list, so treat it as context rather than something to memorize.',
+      },
+      { t: 'h', x: 'Analytics services' },
+      {
+        t: 'compare',
+        title: 'Analytics by job',
+        cols: ['Service', 'Job', 'Clue'],
+        rows: [
+          ['Amazon Athena', 'Query data in Amazon S3 with standard SQL, serverless; pay per query.', '"run SQL directly on S3 data"'],
+          ['Amazon Kinesis', 'Collect, process, and analyze streaming data in real time.', '"real-time streaming data", "clickstreams"'],
+          ['AWS Glue', 'Serverless data integration: discover, prepare, and transform data (ETL).', '"ETL", "data catalog"'],
+          ['Amazon QuickSight', 'Business intelligence: build dashboards and visualizations.', '"dashboards", "BI"'],
+          ['Amazon EMR', 'Run big data frameworks such as Apache Spark and Hadoop at scale.', '"big data processing with Spark/Hadoop"'],
+          ['Amazon OpenSearch Service', 'Search, log analytics, and real-time application monitoring.', '"search and log analytics"'],
+          ['Amazon Redshift', 'Data warehouse for large-scale analytics.', '"data warehouse"'],
+          ['Amazon MSK', 'Managed Apache Kafka for streaming.', '"Apache Kafka"'],
+        ],
+      },
+      {
+        t: 'callout',
+        kind: 'confusion',
+        title: 'Athena vs. Redshift',
+        x: 'Athena is serverless SQL queries over data sitting in S3 — good for ad hoc analysis. Redshift is a data warehouse you load data into for repeated, complex analytics.',
+      },
+    ],
+    checks: [
+      S('c-ai-1', '3.7', 'Which service converts text into lifelike speech?', 'Amazon Polly', ['Amazon Transcribe :: Converts speech to text.', 'Amazon Translate :: Translates between languages.', 'Amazon Lex :: Lex builds chatbots; it does not turn text into speech.'], 'text into … speech', 'Polly is the text-to-speech service.', ['polly']),
+      S('c-ai-2', '3.7', 'Which service lets you query data in Amazon S3 using standard SQL without managing servers?', 'Amazon Athena', ['Amazon Redshift :: A data warehouse you load data into.', 'Amazon QuickSight :: Builds dashboards.', 'Amazon Kinesis :: Handles streaming data.'], 'SQL … Amazon S3 … without managing servers', 'Athena is serverless interactive SQL over S3.', ['athena']),
+      S('c-ai-3', '3.7', 'Which service helps developers build, train, and deploy their own machine learning models?', 'Amazon SageMaker', ['Amazon Rekognition :: A prebuilt image and video analysis service.', 'Amazon Comprehend :: A prebuilt NLP service.', 'Amazon Textract :: Extracts text from documents.'], 'build, train, and deploy … models', 'SageMaker is the ML platform.', ['sagemaker']),
+    ],
+    refs: ['sagemaker', 'lex', 'kendra', 'rekognition', 'polly', 'transcribe', 'translate', 'comprehend', 'textract', 'athena', 'kinesis', 'glue', 'quicksight', 'emr', 'opensearch', 'msk'],
+  },
+  {
+    id: 'integration-business',
+    domain: 3,
+    tasks: ['3.8'],
+    title: 'Messaging, business apps, and customer engagement',
+    summary: 'SQS vs. SNS vs. EventBridge, Amazon Connect and SES, and AWS’s customer-engagement offerings.',
+    minutes: 8,
+    objectives: [
+      'Choose between Amazon SQS, Amazon SNS, and Amazon EventBridge for a messaging need.',
+      'Recognize AWS Step Functions, Amazon Connect, and Amazon SES.',
+      'Identify the customer-engagement services listed in the exam guide.',
+    ],
+    blocks: [
+      {
+        t: 'compare',
+        title: 'Application integration',
+        cols: ['Service', 'Pattern', 'Clue'],
+        rows: [
+          ['Amazon SQS', 'A message **queue**: producers send messages, consumers pull and process them later. Decouples components.', '"decouple", "buffer", "process later"'],
+          ['Amazon SNS', 'Pub/sub **notifications**: publish once, push to many subscribers (email, SMS, queues, functions).', '"send notifications", "fan out", "alerts"'],
+          ['Amazon EventBridge', 'A serverless **event bus**: route events from AWS services, SaaS apps, and your own apps to targets using rules.', '"react to events", "schedule", "SaaS events"'],
+          ['AWS Step Functions', 'Coordinate multiple services into **workflows** with visual state machines.', '"orchestrate a multi-step workflow"'],
+        ],
+        caption: 'Queue = SQS (pull). Notify many = SNS (push). Route events by rule = EventBridge. Orchestrate steps = Step Functions.',
+      },
+      {
+        t: 'callout',
+        kind: 'example',
+        title: 'SNS plus SQS',
+        x: 'A common pattern is "fan-out": an SNS topic publishes an order event to several SQS queues, so billing, shipping, and analytics each process it at their own pace.',
+      },
+      { t: 'h', x: 'Business applications' },
+      {
+        t: 'ul',
+        items: [
+          '**Amazon Connect** — a cloud contact center service for customer support by voice and chat.',
+          '**Amazon Simple Email Service (Amazon SES)** — send and receive email at scale, such as transactional or marketing email.',
+        ],
+      },
+      { t: 'h', x: 'Customer engagement and support offerings in the guide' },
+      {
+        t: 'compare',
+        title: 'Customer-engagement services',
+        cols: ['Offering', 'What it is'],
+        rows: [
+          ['AWS Support', 'Technical support plans and resources (covered in Domain 4).'],
+          ['AWS Managed Services (AMS)', 'AWS operates and manages your AWS infrastructure for you.'],
+          ['AWS Activate for Startups', 'A program offering startups resources such as credits, training, and support.'],
+          ['AWS IQ', 'A marketplace to engage AWS-certified third-party experts. **Currency note:** AWS reports AWS IQ was discontinued on May 28, 2026, although the exam guide still lists it.'],
+        ],
+      },
+    ],
+    checks: [
+      S('c-int-1', '3.8', 'Which service decouples application components by letting one component send messages that another processes later?', 'Amazon SQS', ['Amazon SNS :: This pushes notifications to subscribers.', 'Amazon SES :: This sends email.', 'Amazon Connect :: This is a contact center.'], 'decouples … processes later', 'SQS is a message queue.', ['sqs']),
+      S('c-int-2', '3.8', 'Which service can publish a single message to many subscribers, such as email addresses and Lambda functions?', 'Amazon SNS', ['Amazon SQS :: A queue with consumers pulling messages.', 'AWS Step Functions :: Orchestrates workflows.', 'Amazon Redshift :: A data warehouse.'], 'single message to many subscribers', 'SNS fans out to subscribers.', ['sns']),
+      S('c-int-3', '3.8', 'Which service provides a cloud-based contact center for customer support calls and chats?', 'Amazon Connect', ['Amazon SES :: Sends and receives email.', 'AWS Managed Services :: AWS operates infrastructure for you.', 'Amazon Lex :: Builds chatbots (though it can integrate with Connect).'], 'contact center', 'Amazon Connect is the contact-center service.', ['connect']),
+    ],
+    refs: ['sqs', 'sns', 'eventbridge', 'step-functions', 'connect', 'ses', 'managed-services', 'activate'],
+  },
+  {
+    id: 'dev-eus-iot',
+    domain: 3,
+    tasks: ['3.8'],
+    title: 'Developer tools, end-user computing, web and mobile, and IoT',
+    summary: 'The CI/CD toolchain, virtual desktops and apps, Amplify and AppSync, and IoT services.',
+    minutes: 8,
+    objectives: [
+      'Recognize each AWS developer tool by its role in building, deploying, and troubleshooting applications.',
+      'Choose between Amazon WorkSpaces and Amazon AppStream 2.0.',
+      'Identify AWS Amplify, AWS AppSync, AWS IoT Core, and AWS IoT Greengrass.',
+    ],
+    blocks: [
+      {
+        t: 'compare',
+        title: 'Developer tools',
+        cols: ['Tool', 'Role'],
+        rows: [
+          ['AWS CodeCommit', 'Hosted Git repositories for source code.'],
+          ['AWS CodeBuild', 'Compiles code, runs tests, and produces deployable artifacts.'],
+          ['AWS CodeDeploy', 'Automates deploying applications to EC2, Lambda, and on-premises servers.'],
+          ['AWS CodePipeline', 'Orchestrates the stages of a continuous delivery pipeline.'],
+          ['AWS CodeArtifact', 'Stores and shares software packages and dependencies.'],
+          ['AWS X-Ray', 'Traces requests through distributed applications to find bottlenecks and errors.'],
+          ['AWS Cloud9 / AWS CloudShell', 'A browser-based IDE (Cloud9) and a browser-based shell with the AWS CLI (CloudShell).'],
+          ['AWS AppConfig', 'Deploy application configuration changes safely, without redeploying code.'],
+        ],
+        caption: 'Pipeline order to remember: source (CodeCommit) → build (CodeBuild) → deploy (CodeDeploy), orchestrated by CodePipeline.',
+      },
+      {
+        t: 'callout',
+        kind: 'warn',
+        title: 'Availability has changed for some tools',
+        x: 'The exam guide still lists several developer tools, but AWS has restricted some since it was published — for example, AWS documents that AWS Cloud9 is no longer available to new customers. For the exam, know what each tool is *for*; check AWS documentation before building on any of them.',
+      },
+      { t: 'h', x: 'End-user computing' },
+      {
+        t: 'compare',
+        title: 'Virtual desktops and applications',
+        cols: ['Service', 'Delivers', 'Clue'],
+        rows: [
+          ['Amazon WorkSpaces', 'A fully managed virtual desktop (Windows or Linux) for each user.', '"virtual desktop"'],
+          ['Amazon WorkSpaces Web', 'Secure browser access to internal websites and SaaS apps.', '"secure browser access"'],
+          ['Amazon AppStream 2.0', 'Streams individual desktop applications to a browser.', '"stream an application", not a full desktop'],
+        ],
+      },
+      { t: 'h', x: 'Frontend web and mobile, and IoT' },
+      {
+        t: 'ul',
+        items: [
+          '**AWS Amplify** — build, deploy, and host full-stack web and mobile applications.',
+          '**AWS AppSync** — managed GraphQL APIs that connect apps to data sources.',
+          '**AWS Device Farm** — test web and mobile apps on real devices in the cloud.',
+          '**AWS IoT Core** — securely connect and manage Internet of Things devices and their messages.',
+          '**AWS IoT Greengrass** — run AWS capabilities on IoT devices locally at the edge.',
+        ],
+      },
+    ],
+    checks: [
+      S('c-dev-1', '3.8', 'Which service runs builds and tests and produces deployable artifacts?', 'AWS CodeBuild', ['AWS CodeDeploy :: Deploys applications.', 'AWS CodePipeline :: Orchestrates pipeline stages.', 'AWS X-Ray :: X-Ray traces requests through applications; it does not build or deploy them.'], 'runs builds and tests', 'CodeBuild compiles and tests code.', ['codebuild']),
+      S('c-dev-2', '3.8', 'A company wants to provide employees with managed virtual desktops in the cloud. Which service fits?', 'Amazon WorkSpaces', ['Amazon AppStream 2.0 :: Streams individual applications, not full desktops.', 'AWS Amplify :: Builds web and mobile apps.', 'AWS IoT Core :: Connects devices.'], 'virtual desktops', 'WorkSpaces delivers managed desktops.', ['workspaces']),
+      S('c-dev-3', '3.8', 'Which service helps trace requests through a distributed application to find performance bottlenecks?', 'AWS X-Ray', ['AWS CloudTrail :: Records API calls.', 'Amazon Inspector :: Scans for vulnerabilities.', 'AWS CodeCommit :: Hosts source repositories.'], 'trace requests … bottlenecks', 'X-Ray provides request tracing.', ['xray']),
+    ],
+    refs: ['codebuild', 'codedeploy', 'codepipeline', 'codeartifact', 'codecommit', 'cloud9', 'cloudshell', 'xray', 'appconfig', 'workspaces', 'appstream', 'amplify', 'appsync', 'device-farm', 'iot-core', 'greengrass'],
+  },
+];

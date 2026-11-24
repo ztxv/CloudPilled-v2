@@ -2,7 +2,10 @@
 node_modules/
 dist/
 build/
+coverage/
+.vercel/
 .env
 .env.*
 !.env.example
 *.log
+*.tsbuildinfo

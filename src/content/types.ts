@@ -91,3 +91,15 @@ export interface AtlasEntry {
   /** Names used in older saved data (CloudPilled v1). */
   legacy?: string[];
 }
+
+/** A recall card for an idea (a list, a comparison, a rule) rather than a single service. */
+export interface ConceptCard {
+  id: string;
+  task: string;
+  front: string;
+  /** Short answer shown first. */
+  back: string;
+  /** Optional supporting points shown under the answer. */
+  points?: string[];
+  ref: string;
+}

@@ -2,8 +2,9 @@ import { DOMAINS, questionById, type DomainId, type Question } from '../content'
 import { ymd } from './dates';
 import { newId } from './random';
 import { isCorrect } from './scoring';
+import { nextSrs } from './flash';
 import { defaultState, getState, replaceState, sanitize, update } from './store';
-import type { AppState, DomainTally, MockSession, PracticeSession, SessionResult, SrsCard, ThemePref } from './types';
+import type { AppState, DomainTally, FlashRating, FlashSession, MockSession, PracticeSession, SessionResult, ThemePref } from './types';
 
 const bump = (s: AppState, n = 1): AppState => {
   const k = ymd();
@@ -175,21 +176,50 @@ export function submitMock(timedOut = false): SessionResult | null {
 export const toggleKnown = (id: string) =>
   update((s) => ({ ...s, atlas: { ...s.atlas, known: s.atlas.known.includes(id) ? s.atlas.known.filter((x) => x !== id) : [...s.atlas.known, id] } }));
 
-export type CardRating = 'again' | 'good' | 'easy';
+// ───────── flashcards ─────────
+export const startFlash = (session: FlashSession) => update((s) => ({ ...s, flash: session }));
+export const endFlash = () => update((s) => ({ ...s, flash: null }));
 
-export function nextSrs(prev: SrsCard | undefined, rating: CardRating, now: number): SrsCard {
-  const interval = rating === 'again' ? 1 : rating === 'easy' ? Math.max(4, Math.ceil((prev?.interval ?? 1) * 2.8)) : Math.max(2, Math.ceil((prev?.interval ?? 1) * 2));
-  // "Again" comes back within the same sitting; others are scheduled in days.
-  const due = rating === 'again' ? now + 10 * 60_000 : now + interval * 86_400_000;
-  return { due, interval, reps: (prev?.reps ?? 0) + 1 };
-}
-
-export const rateCard = (id: string, rating: CardRating) =>
+/** Browse mode: move through the deck without rating. */
+export const flashMove = (delta: number) =>
   update((s) => {
-    const card = nextSrs(s.atlas.srs[id], rating, Date.now());
-    const known = rating === 'again' ? s.atlas.known.filter((x) => x !== id) : s.atlas.known.includes(id) ? s.atlas.known : [...s.atlas.known, id];
-    return bump({ ...s, atlas: { known, srs: { ...s.atlas.srs, [id]: card } } });
+    const f = s.flash;
+    if (!f) return s;
+    const index = Math.min(f.queue.length, Math.max(0, f.index + delta));
+    return index === f.index ? s : { ...s, flash: { ...f, index } };
   });
+
+/**
+ * Rate the current card: reschedule it, count the study item, and advance.
+ * In smart and due sessions a card rated Again (or Hard) is shown again a few cards later, at most twice.
+ */
+export function rateFlash(rating: FlashRating): void {
+  update((s) => {
+    const f = s.flash;
+    const id = f?.queue[f.index];
+    if (!f || !id) return s;
+    const now = Date.now();
+    const card = nextSrs(s.atlas.srs[id], rating, now);
+    let queue = f.queue;
+    const requeues = { ...f.requeues };
+    if (f.mode !== 'browse' && (rating === 'again' || rating === 'hard') && (requeues[id] ?? 0) < 2) {
+      const at = Math.min(queue.length, f.index + 1 + (rating === 'again' ? 3 : 7));
+      queue = [...queue.slice(0, at), id, ...queue.slice(at)];
+      requeues[id] = (requeues[id] ?? 0) + 1;
+    }
+    const known = rating === 'again' ? s.atlas.known.filter((x) => x !== id) : rating === 'easy' && !s.atlas.known.includes(id) ? [...s.atlas.known, id] : s.atlas.known;
+    const flash: FlashSession = {
+      ...f,
+      queue,
+      requeues,
+      index: f.index + 1,
+      stats: { ...f.stats, [rating]: f.stats[rating] + 1 },
+      struggled: rating === 'again' && !f.struggled.includes(id) ? [...f.struggled, id] : f.struggled,
+      reviewed: f.reviewed.includes(id) ? f.reviewed : [...f.reviewed, id],
+    };
+    return bump({ ...s, flash, atlas: { known, srs: { ...s.atlas.srs, [id]: card } } });
+  });
+}
 
 // ───────── prefs, navigation memory, data ─────────
 export const setTheme = (theme: ThemePref) => update((s) => ({ ...s, prefs: { ...s.prefs, theme } }));
@@ -203,7 +233,7 @@ export function importData(text: string): { ok: true } | { ok: false; error: str
   try {
     const parsed = JSON.parse(text);
     const data = parsed?.data ?? parsed;
-    if (!data || typeof data !== 'object' || data.v !== 2) return { ok: false, error: 'This file is not a CloudPilled v2 export.' };
+    if (!data || typeof data !== 'object' || data.v !== 2) return { ok: false, error: 'This file is not a CloudPilled export.' };
     replaceState(sanitize(data));
     return { ok: true };
   } catch {

@@ -30,7 +30,7 @@ export function AtlasPage() {
         <h1>Every in-scope service, in one sentence</h1>
         <p className="lead">A quick-reference for the services named in the exam guide: what each does, when to choose it, and what it is often confused with.</p>
         <div className="btn-row">
-          <Link to="/atlas/flashcards" className="btn"><Icon name="cards" /> Flashcards{due > 0 ? ` (${due} due)` : ''}</Link>
+          <Link to="/flashcards" className="btn"><Icon name="cards" /> Study these as flashcards{due > 0 ? ` (${due} due)` : ''}</Link>
           <span className="chip">{known.size} of {ATLAS.length} marked “I know this”</span>
         </div>
       </header>

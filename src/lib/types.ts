@@ -69,10 +69,40 @@ export interface SessionResult {
   timedOut?: boolean;
 }
 
+export type FlashRating = 'again' | 'hard' | 'good' | 'easy';
+export type FlashMode = 'smart' | 'due' | 'browse';
+export type FlashDirection = 'forward' | 'reverse' | 'mixed';
+
+/** Spaced-repetition state for one flashcard. Fields beyond due/interval/reps are optional so older saves load. */
 export interface SrsCard {
   due: number;
+  /** Days until the next review. */
   interval: number;
   reps: number;
+  ease?: number;
+  lapses?: number;
+  last?: FlashRating;
+  at?: number;
+}
+
+export interface FlashSession {
+  id: string;
+  mode: FlashMode;
+  label: string;
+  startedAt: number;
+  /** Card ids in the order they will be shown. Smart and due sessions re-insert cards rated Again or Hard. */
+  queue: string[];
+  index: number;
+  /** Ids shown "description first, name second". */
+  reversed: string[];
+  requeues: Record<string, number>;
+  stats: Record<FlashRating, number>;
+  /** Ids rated Again at least once this session. */
+  struggled: string[];
+  /** Distinct ids rated this session. */
+  reviewed: string[];
+  /** Task ids of the cards the session was built from, for a "practice these" follow-up. */
+  tasks: string[];
 }
 
 export interface AppState {
@@ -83,6 +113,7 @@ export interface AppState {
   results: SessionResult[];
   practice: PracticeSession | null;
   mock: MockSession | null;
+  flash: FlashSession | null;
   /** YYYY-MM-DD → study actions that day. */
   activity: Record<string, number>;
   atlas: { known: string[]; srs: Record<string, SrsCard> };

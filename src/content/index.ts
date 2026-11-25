@@ -13,6 +13,7 @@ export * from './types';
 export * from './domains';
 export { REFS, refFor } from './refs';
 export { ATLAS } from './atlas';
+export { CONCEPTS } from './concepts';
 
 export const LESSONS: Lesson[] = [...DOMAIN1_LESSONS, ...DOMAIN2_LESSONS, ...DOMAIN3A_LESSONS, ...DOMAIN3B_LESSONS, ...DOMAIN4_LESSONS];
 

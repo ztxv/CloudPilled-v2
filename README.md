@@ -2,11 +2,11 @@
 
 <img src="public/favicon.svg" width="72" height="72" alt="CloudPilled logo">
 
-# CloudPilled v2
+# CloudPilled v3
 
 **Learn the cloud. Pass the exam. One concept at a time.**
 
-An exam-aligned study app for the **AWS Certified Cloud Practitioner (CLF-C02)**. Short lessons for first-time learners, original practice questions with the reasoning behind every option, timed mock exams, and progress that stays on your device.
+An exam-aligned study app for the **AWS Certified Cloud Practitioner (CLF-C02)**. Short lessons for first-time learners, original practice questions with the reasoning behind every option, **smart spaced-repetition flashcards**, timed mock exams, and progress that stays on your device.
 
 ![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
@@ -14,7 +14,7 @@ An exam-aligned study app for the **AWS Certified Cloud Practitioner (CLF-C02)**
 ![No backend](https://img.shields.io/badge/backend-none-2f3ccf)
 ![No API keys](https://img.shields.io/badge/API%20keys-none-ff5a3c)
 
-[Features](#features) &nbsp;·&nbsp; [Exam alignment](#exam-alignment) &nbsp;·&nbsp; [Run it](#run-it-locally) &nbsp;·&nbsp; [Deploy](#deploy-to-vercel) &nbsp;·&nbsp; [Maintain the content](#maintaining-the-content)
+[Features](#features) &nbsp;·&nbsp; [Flashcards](#flashcards) &nbsp;·&nbsp; [Exam alignment](#exam-alignment) &nbsp;·&nbsp; [Run it](#run-it-locally) &nbsp;·&nbsp; [Deploy](#deploy-to-vercel) &nbsp;·&nbsp; [Maintain the content](#maintaining-the-content)
 
 </div>
 
@@ -29,11 +29,19 @@ An exam-aligned study app for the **AWS Certified Cloud Practitioner (CLF-C02)**
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/mobile-dashboard.png" width="190" alt="The dashboard on a phone">
+  <img src="docs/screenshots/flashcards-hub.png" width="400" alt="The flashcards hub: deck progress, and Smart, Review due, and Browse modes">
   &nbsp;
-  <img src="docs/screenshots/mobile-lesson.png" width="190" alt="A lesson on a phone, with comparison tables reflowed into stacked cards">
+  <img src="docs/screenshots/flashcards-back.png" width="400" alt="A flashcard flipped to its answer, with Again, Hard, Good, and Easy buttons showing when it will return">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/mobile-dashboard.png" width="170" alt="The dashboard on a phone">
   &nbsp;
-  <img src="docs/screenshots/results-dark.png" width="400" alt="Mock exam results in dark mode with a per-domain breakdown">
+  <img src="docs/screenshots/mobile-flashcards-back.png" width="170" alt="A flashcard in dark mode on a phone">
+  &nbsp;
+  <img src="docs/screenshots/mobile-lesson.png" width="170" alt="A lesson on a phone, with comparison tables reflowed into stacked cards">
+  &nbsp;
+  <img src="docs/screenshots/results-dark.png" width="360" alt="Mock exam results in dark mode with a per-domain breakdown">
 </p>
 
 <p align="center"><sub>Screenshots use sample progress data. The progress shown is not a real learner's.</sub></p>
@@ -42,7 +50,7 @@ An exam-aligned study app for the **AWS Certified Cloud Practitioner (CLF-C02)**
 
 ## About
 
-CloudPilled began as a service-reference app with a quiz. v2 rebuilds it around how people actually prepare for a certification: **learn a concept, practice it, review the mistake, and come back tomorrow.**
+CloudPilled began as a service-reference app with a quiz and flashcards. v2 rebuilt it around how people actually prepare for a certification: **learn a concept, practice it, review the mistake, and come back tomorrow.** v3 brings flashcards back as a full study mode.
 
 It is written for someone who has never studied for the Cloud Practitioner exam. Every lesson maps to an official task statement, explains acronyms on first use, and calls out the pairs of services learners confuse most (SQS vs. SNS, GuardDuty vs. Inspector, CloudFront vs. Global Accelerator, and so on). Every practice question tells you the clue to look for and why each wrong answer is wrong.
 
@@ -57,9 +65,24 @@ There is no account, no server, no database, and no API key. Everything runs in 
 - **A review queue.** Anything you last answered wrongly waits there until you answer it correctly.
 - **Mock exams.** A **full-length mock** (65 questions, 90 minutes) and a **mini mock** (20 questions, 28 minutes), both drawn in the published domain proportions. They include a countdown that survives refreshes, a question navigator, flagging, and a submit confirmation.
 - **An honest scoring model.** Mock results are the percentage you got right on this question bank, with a domain breakdown. They are explicitly **not** an AWS scaled score and make no claim about passing. See [What the scores mean](#what-the-scores-mean).
-- **A service atlas with flashcards.** 135 searchable one-sentence summaries of the services in the exam guide, with spaced-repetition flashcards.
+- **Flashcards with a smart mode.** 195 cards (every in-scope service plus 60 concept cards), spaced repetition, and a mode that shows you more of what you have not met. See [Flashcards](#flashcards).
+- **A service atlas.** 135 searchable one-sentence summaries of the services in the exam guide.
 - **Progress you can trust.** Per-task readiness, a 28-day activity map, a daily goal and streak, session history, and JSON export/import.
 - **Built for long sessions.** Light and dark themes, a calm reading layout, keyboard shortcuts (`1`–`5` select, `Enter` check or next, `N`/`P`/`F` in mocks), visible focus, reduced-motion support, and a bottom tab bar on phones.
+
+## Flashcards
+
+The flashcards section has three ways to study the same 195-card deck: **135 service cards** (what it does, when to choose it, what it is confused with) and **60 concept cards** for the comparisons and lists the exam asks you to recall (the six pillars, the 7 Rs, security group vs. network ACL, SQS vs. SNS, and so on).
+
+| Mode | What it does |
+| --- | --- |
+| **Smart flashcards** (recommended) | Builds a session that favors unfamiliar cards: ones you have never seen, are overdue, or keep missing, plus topics where your practice questions are going badly. Cards marked “I know this” are shown less. Brand-new cards are capped so due reviews are not crowded out, and a card rated **Again** or **Hard** comes back a few cards later in the same session (at most twice). |
+| **Review due** | Only cards whose review time has arrived, oldest first. |
+| **Browse the deck** | Every card in order or shuffled, with Previous/Next and arrow keys, for a relaxed read-through. |
+
+Cards flip with a 3D animation (instant under reduced motion). After flipping you rate the card **Again / Hard / Good / Easy** and each button shows when the card would return. Service cards can be shown name-first, description-first (the name is masked in the description), or mixed. Scope sessions by domain, task statement, card type, or category. Sessions survive a refresh, and the hub's “smart picks” point at the topics that need the most attention.
+
+Keyboard: `Space` flip, `1`–`4` rate, `K` mark known, `←`/`→` move in browse mode.
 
 ## Study workflow
 
@@ -71,7 +94,7 @@ Dashboard ─▶ Lesson ─▶ Quick checks ─▶ Practice this topic ─▶ Re
 
 1. Start at **Home**. The first card says where to begin.
 2. Read a **lesson**, answer its quick checks, and mark it complete.
-3. Run a **practice set** for that task statement. Read every explanation, including the ones for options you did not pick.
+3. Run a **practice set** for that task statement. Read every explanation, including the ones for options you did not pick. Do a **smart flashcard** round on the same topic.
 4. Work through the **review queue** until it is empty.
 5. Take a **mini mock** as a checkpoint, then a **full mock** when your domain readiness is mostly “Solid”.
 
@@ -157,7 +180,7 @@ Open <http://127.0.0.1:5173>. No `.env` file or API key is needed.
 
 CloudPilled is a static single-page app with no server code and **no environment variables**.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fztxv%2FCloudPilled-v1&project-name=cloudpilled&repository-name=cloudpilled)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fztxv%2FCloudPilled-v2&project-name=cloudpilled&repository-name=cloudpilled)
 
 Import the repository in Vercel. It detects Vite automatically:
 
@@ -181,12 +204,13 @@ src/
   content/
     domains.ts          Exam code, domains, weights, and the 19 official task statements
     refs.ts             Registry of official AWS links, referenced by key
-    atlas.ts            Service atlas entries
+    atlas.ts            Service atlas entries (also the service flashcards)
+    concepts.ts         Concept flashcards (lists, comparisons, rules)
     builders.ts         S() and M() helpers for writing questions compactly
     lessons/            One file per domain; each lesson maps to task statements
     questions/          One file per domain
     content.test.ts     Validation suite
-  lib/                  Store, scoring, session builders, progress, legacy import (all unit-tested)
+  lib/                  Store, scoring, session builders, flashcard scheduling and smart selection, progress, legacy import (all unit-tested)
   components/  pages/   UI
   styles/               Tokens, base, components, pages
 ```
@@ -208,10 +232,10 @@ S('d3-016', '3.3', 'A company wants to run a short piece of code whenever a file
 
 ## Your data
 
-Progress lives in `localStorage` under `cloudpilled:v2` and never leaves your browser. Use **Settings → Export progress** for a backup, and **Import** to restore it on another device.
+Progress lives in `localStorage` under `cloudpilled:v2` (the name is the saved-data format version, so progress from the v2 release carries straight into v3) and never leaves your browser. Use **Settings → Export progress** for a backup, and **Import** to restore it on another device.
 
 Saved data is versioned and sanitized on load, so malformed or older data degrades gracefully instead of crashing the app. If you used CloudPilled v1 in the same browser, v2 imports your theme, daily activity, daily goal, “known” services, and flashcard schedule on first load and leaves the old keys untouched. v1 quiz statistics were keyed on question text and a different category scheme, so they cannot be mapped to exam domains and are not imported.
 
 ## Disclaimer
 
-CloudPilled is an unofficial study aid. It is not affiliated with, endorsed by, or sponsored by Amazon Web Services. AWS, the AWS Certified Cloud Practitioner name, and related marks belong to Amazon.com, Inc. or its affiliates. Content was checked against official AWS documentation on the date above, but AWS changes quickly: confirm exam details and service behavior with the linked official sources.
+Source: <https://github.com/ztxv/CloudPilled-v2>. CloudPilled is an unofficial study aid. It is not affiliated with, endorsed by, or sponsored by Amazon Web Services. AWS, the AWS Certified Cloud Practitioner name, and related marks belong to Amazon.com, Inc. or its affiliates. Content was checked against official AWS documentation on the date above, but AWS changes quickly: confirm exam details and service behavior with the linked official sources.

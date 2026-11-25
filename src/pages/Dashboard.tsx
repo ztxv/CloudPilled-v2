@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { DOMAINS, EXAM, LESSONS } from '../content';
 import { Icon } from '../components/Icon';
@@ -5,6 +6,7 @@ import { Bar, DomainChip, ExtLink, Ring } from '../components/ui';
 import { timeAgo } from '../lib/dates';
 import { nextStep } from '../lib/nextStep';
 import { domainLessonProgress, domainTally, hasAnyActivity, missedCount, overall, streak, todayCount, weakestDomain } from '../lib/progress';
+import { DECK, deckStats } from '../lib/deck';
 import { useAppState } from '../lib/store';
 import { percent } from '../lib/scoring';
 
@@ -17,6 +19,7 @@ const READINESS: Record<string, { label: string; cls: string }> = {
 
 export function Dashboard() {
   const state = useAppState();
+  const [now] = useState(() => Date.now());
   const step = nextStep(state);
   const o = overall(state);
   const s = streak(state);
@@ -26,6 +29,7 @@ export function Dashboard() {
   const missed = missedCount(state);
   const weakest = weakestDomain(state);
   const recent = [...state.results].reverse().slice(0, 4);
+  const cards = deckStats(state, DECK, now);
 
   return (
     <div className="container">
@@ -138,7 +142,17 @@ export function Dashboard() {
         </div>
       </section>
 
-      <div className="grid cols-2 section">
+      <div className="grid cols-3 section">
+        <section className="card" aria-labelledby="cards-h">
+          <p className="eyebrow">Flashcards</p>
+          <h2 id="cards-h" style={{ fontSize: '1.3rem' }}>{cards.due > 0 ? `${cards.due} cards due` : cards.new === cards.total ? `${cards.total} cards ready` : 'All caught up'}</h2>
+          <p className="muted">
+            {cards.new === cards.total ? 'Services and concepts, with a smart mode that favors what you have not met.' : `${cards.new} new · ${cards.learning} learning · ${cards.familiar + cards.mastered} familiar or better.`}
+          </p>
+          <div className="btn-row">
+            <Link to="/flashcards" className="btn">{cards.due > 0 ? 'Review cards' : 'Study cards'}</Link>
+          </div>
+        </section>
         <section className="card" aria-labelledby="review-h">
           <p className="eyebrow">Review queue</p>
           <h2 id="review-h" style={{ fontSize: '1.3rem' }}>{missed > 0 ? `${missed} missed ${missed === 1 ? 'question' : 'questions'} waiting` : 'Nothing to review yet'}</h2>

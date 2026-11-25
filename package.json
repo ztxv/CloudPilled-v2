@@ -1,8 +1,8 @@
 {
   "name": "cloudpilled",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
-  "description": "CloudPilled v2 — an exam-aligned study app for the AWS Certified Cloud Practitioner (CLF-C02).",
+  "description": "CloudPilled v3 — an exam-aligned study app for the AWS Certified Cloud Practitioner (CLF-C02).",
   "type": "module",
   "engines": {
     "node": ">=20.19.0"

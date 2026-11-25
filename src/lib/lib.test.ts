@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { DOMAINS, QUESTIONS, questionById, type Question } from '../content';
-import { abandonMock, checkPractice, finishPractice, nextSrs, pickMock, pickPractice, setLessonDone, startMock, startPractice, submitMock, importData, exportData } from './actions';
+import { abandonMock, checkPractice, finishPractice, pickMock, pickPractice, setLessonDone, startMock, startPractice, submitMock, importData, exportData } from './actions';
 import { currentStreak, longestStreak, ymd, addDays, formatClock } from './dates';
+import { nextSrs } from './flash';
 import { importLegacy } from './legacy';
 import { nextStep } from './nextStep';
 import { domainTally, missedCount, weakestDomain } from './progress';

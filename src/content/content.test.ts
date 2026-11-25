@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ATLAS, DOMAINS, LESSONS, QUESTIONS, REFS, TASKS, domainMix, questionById, type Question } from './index';
+import { ATLAS, CONCEPTS, DOMAINS, LESSONS, QUESTIONS, REFS, TASKS, domainMix, questionById, type Question } from './index';
 
 const ALL_CHECKS = LESSONS.flatMap((l) => l.checks);
 const EVERYTHING: Question[] = [...QUESTIONS, ...ALL_CHECKS];
@@ -155,6 +155,18 @@ describe('references and atlas', () => {
       expect(e.does.length).toBeGreaterThan(10);
       expect(e.pick.length).toBeGreaterThan(10);
     }
+  });
+  it('has valid concept flashcards', () => {
+    expect(new Set(CONCEPTS.map((c) => c.id)).size).toBe(CONCEPTS.length);
+    for (const c of CONCEPTS) {
+      expect(c.id.startsWith('concept:')).toBe(true);
+      expect(TASKS.find((t) => t.id === c.task), `${c.id} task`).toBeTruthy();
+      expect(REFS[c.ref], `${c.id} ref`).toBeTruthy();
+      expect(c.front.length).toBeGreaterThan(10);
+      expect(c.back.length).toBeGreaterThan(20);
+      expect(/[*`]/.test(c.back + c.front + (c.points ?? []).join(''))).toBe(false);
+    }
+    for (const t of TASKS) expect(CONCEPTS.some((c) => c.task === t.id), `concept card for ${t.id}`).toBe(true);
   });
   it('reports content counts', () => {
     const rows = DOMAINS.map((d) => ({

@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
-import { EXAM, LESSONS, QUESTIONS } from '../content';
-import { ATLAS } from '../content';
-import { Icon } from '../components/Icon';
+import { ATLAS, EXAM, LESSONS, QUESTIONS } from '../content';
+import { DECK } from '../lib/deck';
+import { GithubIcon, Icon } from '../components/Icon';
 import { ConfirmDialog, ExtLink } from '../components/ui';
 import { exportData, importData, resetProgress, setDailyGoal, setTheme } from '../lib/actions';
 import { isPersisting, useAppState } from '../lib/store';
@@ -72,10 +72,25 @@ export function SettingsPage() {
         {state.legacyImported && <p className="small muted" style={{ marginTop: 12 }}>Some of your CloudPilled v1 data (theme, daily activity, known services, flashcard schedule) was carried over. v1 quiz statistics used a different question set and domain scheme, so they could not be mapped and were left untouched in your browser.</p>}
       </section>
 
+      <section className="card section about" aria-labelledby="about-h">
+        <div className="about-row">
+          <div>
+            <p className="eyebrow">About</p>
+            <h2 id="about-h" style={{ fontSize: '1.2rem', marginBottom: 6 }}>CloudPilled v3</h2>
+            <p className="muted" style={{ margin: 0 }}>Open source, no accounts, no tracking. Star the repo, read the code, or send a fix.</p>
+          </div>
+          <a className="btn github-btn" href="https://github.com/ztxv/CloudPilled-v2" target="_blank" rel="noopener noreferrer">
+            <GithubIcon />
+            View on GitHub
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+        </div>
+      </section>
+
       <section className="card section" aria-labelledby="src-h">
         <h2 id="src-h" style={{ fontSize: '1.2rem' }}>Sources and currency</h2>
         <p>
-          CloudPilled v2 follows the <b>{EXAM.name} ({EXAM.code})</b> exam guide, version 1.0. The exam code, domains, weights ({[24, 30, 34, 12].join('% / ')}%), and {EXAM.totalQuestions}-question / {EXAM.minutes}-minute format were checked against AWS’s official pages on {EXAM.verifiedOn}.
+          CloudPilled v3 follows the <b>{EXAM.name} ({EXAM.code})</b> exam guide, version 1.0. The exam code, domains, weights ({[24, 30, 34, 12].join('% / ')}%), and {EXAM.totalQuestions}-question / {EXAM.minutes}-minute format were checked against AWS’s official pages on {EXAM.verifiedOn}.
         </p>
         <p className="small">
           <ExtLink href={EXAM.guideUrl}>Exam guide (PDF)</ExtLink> · <ExtLink href={EXAM.pageUrl}>Certification page</ExtLink>
@@ -87,7 +102,7 @@ export function SettingsPage() {
           <li><b>AWS Snowball:</b> listed in the guide as part of the Snow Family; AWS announces end of support in commercial Regions on December 31, 2026.</li>
           <li><b>AWS Cloud9:</b> listed in the guide; AWS documents it as no longer available to new customers.</li>
         </ul>
-        <p className="small muted">Content: {LESSONS.length} lessons · {QUESTIONS.length} practice questions · {ATLAS.length} atlas entries. Unofficial study aid; not affiliated with or endorsed by AWS. All questions are original.</p>
+        <p className="small muted">Content: {LESSONS.length} lessons · {QUESTIONS.length} practice questions · {DECK.length} flashcards · {ATLAS.length} atlas entries. Unofficial study aid; not affiliated with or endorsed by AWS. All questions are original.</p>
       </section>
 
       <ConfirmDialog

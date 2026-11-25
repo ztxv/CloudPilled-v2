@@ -12,6 +12,7 @@ export const defaultState = (): AppState => ({
   results: [],
   practice: null,
   mock: null,
+  flash: null,
   activity: {},
   atlas: { known: [], srs: {} },
   last: null,
@@ -55,6 +56,25 @@ export function sanitize(raw: unknown): AppState {
   if (Array.isArray(raw.results)) out.results = raw.results.filter((r) => isObj(r) && typeof r.id === 'string').slice(-60) as unknown as AppState['results'];
   if (isObj(raw.practice) && Array.isArray(raw.practice.questionIds)) out.practice = raw.practice as unknown as AppState['practice'];
   if (isObj(raw.mock) && Array.isArray(raw.mock.questionIds)) out.mock = raw.mock as unknown as AppState['mock'];
+  if (isObj(raw.flash) && Array.isArray(raw.flash.queue) && typeof raw.flash.index === 'number' && typeof raw.flash.id === 'string') {
+    const f = raw.flash as unknown as NonNullable<AppState['flash']>;
+    const strs = (x: unknown): string[] => (Array.isArray(x) ? x.filter((y): y is string => typeof y === 'string') : []);
+    const st: Record<string, unknown> = isObj(f.stats) ? f.stats : {};
+    out.flash = {
+      id: f.id,
+      mode: f.mode === 'due' || f.mode === 'browse' ? f.mode : 'smart',
+      label: typeof f.label === 'string' ? f.label : 'Flashcards',
+      startedAt: Number(f.startedAt) || 0,
+      queue: strs(f.queue),
+      index: Math.max(0, Math.floor(f.index)),
+      reversed: strs(f.reversed),
+      requeues: isObj(f.requeues) ? Object.fromEntries(Object.entries(f.requeues).map(([k, v]) => [k, Number(v) || 0])) : {},
+      stats: { again: Number(st.again) || 0, hard: Number(st.hard) || 0, good: Number(st.good) || 0, easy: Number(st.easy) || 0 },
+      struggled: strs(f.struggled),
+      reviewed: strs(f.reviewed),
+      tasks: strs(f.tasks),
+    };
+  }
   if (isObj(raw.activity)) {
     for (const [k, v] of Object.entries(raw.activity)) if (/^\d{4}-\d{2}-\d{2}$/.test(k) && Number(v) > 0) out.activity[k] = Number(v);
   }
@@ -62,7 +82,17 @@ export function sanitize(raw: unknown): AppState {
     if (Array.isArray(raw.atlas.known)) out.atlas.known = raw.atlas.known.filter((x): x is string => typeof x === 'string');
     if (isObj(raw.atlas.srs)) {
       for (const [id, c] of Object.entries(raw.atlas.srs)) {
-        if (isObj(c)) out.atlas.srs[id] = { due: Number(c.due) || 0, interval: Math.max(1, Number(c.interval) || 1), reps: Math.max(0, Number(c.reps) || 0) };
+        if (!isObj(c)) continue;
+        const last = c.last;
+        out.atlas.srs[id] = {
+          due: Number(c.due) || 0,
+          interval: Math.max(1, Number(c.interval) || 1),
+          reps: Math.max(0, Number(c.reps) || 0),
+          ...(Number(c.ease) ? { ease: Math.min(3, Math.max(1.3, Number(c.ease))) } : {}),
+          ...(Number(c.lapses) ? { lapses: Math.max(0, Math.floor(Number(c.lapses))) } : {}),
+          ...(last === 'again' || last === 'hard' || last === 'good' || last === 'easy' ? { last } : {}),
+          ...(Number(c.at) ? { at: Number(c.at) } : {}),
+        };
       }
     }
   }

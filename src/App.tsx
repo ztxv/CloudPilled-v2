@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { Dashboard } from './pages/Dashboard';
 import { StudyPage } from './pages/Study';
@@ -10,7 +10,8 @@ import { ReviewPage } from './pages/Review';
 import { MockHome } from './pages/MockHome';
 import { MockRun } from './pages/MockRun';
 import { AtlasPage } from './pages/Atlas';
-import { FlashcardsPage } from './pages/Flashcards';
+import { FlashcardsHub } from './pages/Flashcards';
+import { FlashSessionPage } from './pages/FlashSession';
 import { ProgressPage } from './pages/Progress';
 import { SettingsPage } from './pages/Settings';
 import { NotFound } from './pages/NotFound';
@@ -29,7 +30,9 @@ export function App() {
         <Route path="mock" element={<MockHome />} />
         <Route path="mock/run" element={<MockRun />} />
         <Route path="atlas" element={<AtlasPage />} />
-        <Route path="atlas/flashcards" element={<FlashcardsPage />} />
+        <Route path="flashcards" element={<FlashcardsHub />} />
+        <Route path="flashcards/session" element={<FlashSessionPage />} />
+        <Route path="atlas/flashcards" element={<Navigate to="/flashcards" replace />} />
         <Route path="progress" element={<ProgressPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="*" element={<NotFound />} />

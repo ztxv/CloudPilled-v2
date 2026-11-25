@@ -195,6 +195,10 @@ Import the repository in Vercel. It detects Vite automatically:
 
 [`vercel.json`](vercel.json) contains one rewrite that serves `index.html` for any path that is not a file, so deep links such as `/lesson/compute` work after a refresh. Static files are served first, so assets are unaffected.
 
+## Link previews
+
+Sharing the site in iMessage, Slack, Discord, X, or LinkedIn shows a branded card (`public/og-image.png`, 1200×630) with the title and description, driven by the Open Graph and Twitter tags in [`index.html`](index.html). Those tags use absolute URLs for `https://cloud-pilled.vercel.app`; if you deploy under a different domain, update the `og:url`, `og:image`, `twitter:image`, and canonical URLs there. The image's source is [`scripts/og-image.html`](scripts/og-image.html). Apps cache previews per URL, so after a redeploy send the link with a throwaway query string (for example `?v=2`) to see the new card immediately.
+
 ## Maintaining the content
 
 All curriculum content is plain TypeScript, validated on every test run.
